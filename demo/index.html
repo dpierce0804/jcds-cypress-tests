@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Task Board</title>
+<style>body{font:18px system-ui;margin:4rem auto;max-width:680px;padding:1rem;color:#17324d}input,button{font:inherit;padding:.6rem}li{display:flex;gap:1rem;align-items:center;margin:1rem 0}.complete{text-decoration:line-through}ul{padding:0}button{cursor:pointer}</style></head>
+<body><h1 data-cy="heading">Task Board</h1><p>A local demo for your scheduled Cypress suite.</p>
+<form id="form"><label for="task">New task</label><input id="task" data-cy="task-input" autocomplete="off"><button data-cy="task-add">Add</button></form>
+<p data-cy="message" role="status"></p><ul data-cy="task-list"></ul>
+<script>
+const form=document.querySelector('#form'),input=document.querySelector('#task'),list=document.querySelector('ul'),message=document.querySelector('[role=status]');
+form.addEventListener('submit',event=>{
+ event.preventDefault(); const text=input.value.trim();
+ if(!text){message.textContent='Enter a task first.';return;}
+ message.textContent='';const li=document.createElement('li');
+ const toggle=document.createElement('input');toggle.type='checkbox';toggle.dataset.cy='task-toggle';toggle.setAttribute('aria-label','Complete '+text);
+ const span=document.createElement('span');span.textContent=text;span.dataset.cy='task-text';
+ toggle.addEventListener('change',()=>span.classList.toggle('complete',toggle.checked));
+ const del=document.createElement('button');del.textContent='Delete';del.dataset.cy='task-delete';del.addEventListener('click',()=>li.remove());
+ li.append(toggle,span,del);list.append(li);input.value='';input.focus();
+});
+</script></body></html>

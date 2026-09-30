@@ -1,0 +1,60 @@
+name: Cypress Regression
+on:
+  schedule:
+    - cron: '37 3 * * *'
+      timezone: America/Los_Angeles
+  workflow_dispatch:
+    inputs:
+      browser:
+        description: Browser
+        type: choice
+        options: [chrome, firefox, electron]
+        default: chrome
+permissions:
+  contents: read
+concurrency:
+  group: cypress-regression-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      CYPRESS_BASE_URL: ${{ vars.BASE_URL || 'http://127.0.0.1:4173' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Run regression tests
+        uses: cypress-io/github-action@v7
+        with:
+          build: npm run typecheck
+          start: ${{ vars.BASE_URL == '' && 'npm run demo' || '' }}
+          wait-on: ${{ vars.BASE_URL || 'http://127.0.0.1:4173' }}
+          command: npm run test:regression -- --browser ${{ inputs.browser || 'chrome' }}
+      - name: Save JUnit results
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: regression-results-${{ github.run_id }}-${{ github.run_attempt }}
+          path: reports/junit/
+          retention-days: 7
+          if-no-files-found: ignore
+      - name: Save failure screenshots and videos
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: regression-failure-media-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            cypress/screenshots/
+            cypress/videos/
+          retention-days: 3
+          if-no-files-found: ignore
+      - name: Optional Slack failure notification
+        if: failure() && github.event_name != 'pull_request'
+        continue-on-error: true
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          TEST_SUITE: regression
+        run: node scripts/notify-slack.mjs
