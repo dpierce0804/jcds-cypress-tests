@@ -1,2 +1,11 @@
-// Add shared commands here when needed. Test isolation stays enabled.
+Cypress.on('uncaught:exception', (err) => {
+  if (
+    err.message.includes(
+      'ResizeObserver loop completed with undelivered notifications.'
+    )
+  ) {
+    return false;
+  }
+});
+
 export {};

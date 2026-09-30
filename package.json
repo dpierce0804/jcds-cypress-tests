@@ -1,18 +1,17 @@
 {
-  "name": "cypress-scheduled-starter",
+  "name": "jcds-cypress-tests",
   "version": "1.0.0",
   "private": true,
   "engines": {
     "node": ">=22"
   },
   "scripts": {
-    "demo": "node demo/server.mjs",
     "cy:open": "cypress open",
     "test:smoke": "cypress run --spec \"cypress/e2e/smoke/**/*.cy.ts\"",
     "test:regression": "cypress run",
     "typecheck": "tsc --noEmit",
-    "test:local": "start-server-and-test demo http://127.0.0.1:4173 test:regression",
-    "test:local:smoke": "start-server-and-test demo http://127.0.0.1:4173 test:smoke"
+    "test:local": "npm run test:regression",
+    "test:local:smoke": "npm run test:smoke"
   },
   "devDependencies": {
     "cypress": "^15.0.0",
