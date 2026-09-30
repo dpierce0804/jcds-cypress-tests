@@ -1,7 +1,7 @@
 name: Cypress Regression
 on:
   schedule:
-    - cron: '37 3 * * *'
+    - cron: '30 3 * * *'
       timezone: America/Los_Angeles
   workflow_dispatch:
     inputs:
@@ -20,7 +20,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     env:
-      CYPRESS_BASE_URL: ${{ vars.BASE_URL || 'http://127.0.0.1:4173' }}
+      CYPRESS_BASE_URL: ${{ vars.BASE_URL || 'https://jaxencreekdroneservices.com' }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -30,8 +30,7 @@ jobs:
         uses: cypress-io/github-action@v7
         with:
           build: npm run typecheck
-          start: ${{ vars.BASE_URL == '' && 'npm run demo' || '' }}
-          wait-on: ${{ vars.BASE_URL || 'http://127.0.0.1:4173' }}
+          wait-on: ${{ vars.BASE_URL || 'https://jaxencreekdroneservices.com' }}
           command: npm run test:regression -- --browser ${{ inputs.browser || 'chrome' }}
       - name: Save JUnit results
         if: ${{ !cancelled() }}
