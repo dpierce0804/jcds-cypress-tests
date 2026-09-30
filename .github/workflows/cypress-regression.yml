@@ -50,10 +50,10 @@ jobs:
             cypress/videos/
           retention-days: 3
           if-no-files-found: ignore
-      - name: Optional Slack failure notification
-        if: failure() && github.event_name != 'pull_request'
+      - name: Send results to Slack
+        if: always() && github.event_name != 'pull_request'
         continue-on-error: true
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-          TEST_SUITE: regression
+          RUN_STATUS: ${{ job.status }}
         run: node scripts/notify-slack.mjs
